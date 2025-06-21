@@ -4,3 +4,5 @@ Technologies
 NodeJs
 ExpressJS
 MongoDB
+for starting project  command
+npm start
