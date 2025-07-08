@@ -1,7 +1,9 @@
 const express= require('express');
 const connectDB = require("./config/database");
 const User=require("./models/user")
-require("./config/database")
+const bcrypt = require("bcrypt");
+require("./config/database");
+const {validateUserObject,encryptPasswordHandler} = require("./utils/validate");
 
 const app=express();
 const port=7777; 
@@ -10,25 +12,30 @@ app.use(express.json()); // Middleware to parse JSON bodies
 
 app.post("/signup",async(req,res)=>{
   const userObj=req.body
-  const validate=Object.values(userObj)?.every(value=>value?.length>0)
+ try{
+    // validate the user object
+    validateUserObject(userObj);
 
-   
-
-   try{
-    if(validate){
-        const user=  new User(userObj)
+// Encryption of password
+    const encryptPwd = await encryptPasswordHandler(userObj.password)
+    const {firstName, lastName, emailId} = userObj;
+   const userData={
+     firstName,
+     lastName,
+     emailId,
+     password: encryptPwd,
+   }
+        const user=  new User(userData);
    console.log("User object created:", user);
      await user.save();
      console.log("user saved successfully",user)
      res.send("User saved successfully");
-   }
-    else{
-      res.status(400).send("Some values are not valid or empty");
-    }
+   
+  
     }
    catch(err){
        console.error("Error saving user:", err);
-       res.status(400).send("Error saving user" + err.message);
+       res.status(400).send(err.message);
    }
 
 })
@@ -74,7 +81,7 @@ app.patch("/user",async(req,res)=>{
 
     try{
      if(userId){
-        const allowedUpdateFields=["firstName", "lastName", "password", "age", "photoUrl", "about"];
+        const allowedUpdateFields=["firstName", "lastName", "password", "age", "photoUrl", "about","skills"];
         const validUpdtes=Object.keys(updateData).every(key=>allowedUpdateFields.includes(key));
         if(!validUpdtes){
             return res.status(400).send("Invalid update fields");
@@ -94,6 +101,30 @@ app.patch("/user",async(req,res)=>{
     }catch(err){
         res.status(500).send("Error updating user: " + err.message);
     }
+})
+app.post("/login",async(req,res)=>{
+   try{
+        const {emailId, password} = req.body;
+        // Check if the request body is defined and contains emailId and password
+        if(!(req.body && Object.keys(req.body)?.length > 0 && emailId && password)){
+            return res.status(400).send("Please provide valid inputs");
+        }
+      
+       const user = await User.findOne({emailId:emailId});
+       if(!user){
+              return res.status(404).send("User not found");
+       }
+
+         // Compare the provided password with the stored hashed password
+        const passwordValid=await bcrypt.compare(password, user.password);
+        if(!passwordValid){
+            return res.status(401).send("Invalid credentials");
+        }
+      
+        res.send("Login successful");
+   }catch(err){
+    res.status(500).send("Error during login: " + err.message);
+ }
 })
 
 connectDB().then(()=>{

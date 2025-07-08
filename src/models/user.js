@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema({
     },
       photoUrl: {
     type: String,
-    default: "https://www.w3schools.com/howto/img_avatar.png",
+    default: "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740",
     validate(value) {
       if (!validator.isURL(value)) throw new Error("Invalid Photo URL");
     }
@@ -65,21 +65,13 @@ const userSchema = new mongoose.Schema({
         trim:true,
         default:"This is a default about me"
     },
+    skills:{
+      type:[String]
+    }
 
 
 },{ timestamps: true })
 
-userSchema.pre("save", function (next) {
-  if (!this.photoUrl) {
-    this.photoUrl = "https://www.w3schools.com/howto/img_avatar.png";
-  }
-
-  if (!this.about || this.about.trim() === "") {
-    this.about = "This is a default about me";
-  }
-
-  next();
-});
 
 const User = mongoose.model("User",userSchema);
 module.exports=User;
