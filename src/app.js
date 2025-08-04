@@ -1,14 +1,20 @@
 const express= require('express');
 const connectDB = require("./config/database");
+const cookieParser = require("cookie-parser");
 const User=require("./models/user")
 const bcrypt = require("bcrypt");
 require("./config/database");
 const {validateUserObject,encryptPasswordHandler} = require("./utils/validate");
+const jwt= require("jsonwebtoken");
+const {userAuth} = require("./midileware/auth");
+
+
 
 const app=express();
 const port=7777; 
 
 app.use(express.json()); // Middleware to parse JSON bodies
+app.use(cookieParser()); // Middleware to parse cookies
 
 app.post("/signup",async(req,res)=>{
   const userObj=req.body
@@ -102,6 +108,12 @@ app.patch("/user",async(req,res)=>{
         res.status(500).send("Error updating user: " + err.message);
     }
 })
+app.get("/profile",userAuth,async(req,res)=>{
+   
+     const userData=req.user;
+     res.send(userData);
+
+})
 app.post("/login",async(req,res)=>{
    try{
         const {emailId, password} = req.body;
@@ -116,12 +128,25 @@ app.post("/login",async(req,res)=>{
        }
 
          // Compare the provided password with the stored hashed password
-        const passwordValid=await bcrypt.compare(password, user.password);
+        const passwordValid=await user.isValidPassword(password);
         if(!passwordValid){
             return res.status(401).send("Invalid credentials");
+        }else{
+            //  Jwt token
+            const token = user.getJWT();
+            if(!token){
+                res.status(401).send("Error generating token");
+            }
+         
+
+            // send token to the user using cookies
+             res.cookie("token",token)
+
+            // If the password is valid, send a success response
+            res.send("Login successful");
         }
       
-        res.send("Login successful");
+    
    }catch(err){
     res.status(500).send("Error during login: " + err.message);
  }

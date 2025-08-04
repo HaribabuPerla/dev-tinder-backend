@@ -1,5 +1,7 @@
 const mongoose=require("mongoose");  //Importing mongoose
-const validator=require("validator")
+const validator=require("validator");
+const jwt=require("jsonwebtoken"); //Importing jsonwebtoken
+const bcrypt = require("bcrypt"); //Importing bcrypt for password hashing
 
 if (mongoose.models.User) {
   delete mongoose.models.User;
@@ -71,6 +73,22 @@ const userSchema = new mongoose.Schema({
 
 
 },{ timestamps: true })
+
+userSchema.methods.getJWT=function(){
+  const user=this
+ const token=jwt.sign({_id:user._id},"DEV_TINDER_SECRET_KEY",{ expiresIn: '7d' });
+ return token;
+
+}
+
+userSchema.methods.isValidPassword=async function(passwordInput){
+  const hashPwd=this.password
+  const isValid=await bcrypt.compare(passwordInput,hashPwd)
+  return isValid;
+
+}
+
+
 
 
 const User = mongoose.model("User",userSchema);
