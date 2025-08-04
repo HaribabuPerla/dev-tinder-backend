@@ -148,7 +148,7 @@ app.post("/login",async(req,res)=>{
       
     
    }catch(err){
-    res.status(500).send("Error during login: " + err.message);
+    res.status(500).send("Error during  login: " + err.message);
  }
 })
 
