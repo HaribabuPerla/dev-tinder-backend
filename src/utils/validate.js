@@ -19,4 +19,12 @@ const encryptPasswordHandler=(password)=>{
    return bcrypt.hash(password, 10)
 
 }
-module.exports ={ validateUserObject , encryptPasswordHandler};
+
+const validateProfileEdit = (profileData) => {
+const allowedEditFIelds=["firstName","lastName","age","photourl","about","skills"]
+const isAllowd=Object.keys(profileData).every((key)=>allowedEditFIelds.includes(key))
+return isAllowd;
+}
+
+
+module.exports ={ validateUserObject , encryptPasswordHandler,validateProfileEdit};

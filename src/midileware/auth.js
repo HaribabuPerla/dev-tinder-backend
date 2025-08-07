@@ -6,9 +6,10 @@ const userAuth = async(req, res, next) => {
 
     
     const {token}=req.cookies;
-    if(!token){
+    if(!token || token?.length<=6){
         return res.status(401).send("Unauthorized: No token provided");
     }
+     
 
     const decodedToken = Jwt.verify(token, "DEV_TINDER_SECRET_KEY");
     if(!decodedToken || !decodedToken._id){
