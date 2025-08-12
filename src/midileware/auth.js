@@ -7,7 +7,10 @@ const userAuth = async(req, res, next) => {
     
     const {token}=req.cookies;
     if(!token || token?.length<=6){
-        return res.status(401).send("Unauthorized: No token provided");
+        return res.status(401).json({
+            status: 401,
+            message: "Please login to continue"
+        })
     }
      
 

@@ -44,7 +44,7 @@ authRouter.post("/login",async(req,res)=>{
             return res.status(400).send("Please provide valid inputs");
         }
       
-       const user = await User.findOne({emailId:emailId});
+       const user = await User.findOne({emailId:emailId})
        if(!user){
               return res.status(404).send("User not found");
        }
@@ -52,21 +52,36 @@ authRouter.post("/login",async(req,res)=>{
          // Compare the provided password with the stored hashed password
         const passwordValid=await user.isValidPassword(password);
         if(!passwordValid){
-            return res.status(401).send("Invalid credentials");
+            return res.json({status:401 ,message :"Invalid credentials"});
         }else{
             //  Jwt token
             const token = user.getJWT();
             if(!token){
-                res.status(401).send("Error generating token");
+               return res.status(401).send("Error generating token");
             }
          
 
             // send token to the user using cookies
              res.cookie("token",token)
+const responseUser={
+    firstName: user.firstName,
+    lastName: user.lastName,
+    about: user.about,
+    skills: user.skills,
+    photoUrl: user.photoUrl,
+}
 
             // If the password is valid, send a success response
-            res.send("Login successful");
+            res.json({
+                status:200,
+                success:true,
+                message:"Login Successful",
+                data:responseUser,
+
+
+            });
         }
+
       
     
    }catch(err){
@@ -76,7 +91,11 @@ authRouter.post("/login",async(req,res)=>{
 
 authRouter.post("/logout",async(req,res)=>{
     res.cookie("token",null,{expiresIn:new Date(Date.now())})
-    res.send("You have been logged out successfully");
+    res.json({
+        status:200,
+        message:"Logout successful",
+        data:null
+    })
 
 });
 

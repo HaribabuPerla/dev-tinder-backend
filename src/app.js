@@ -15,15 +15,18 @@ const authRouter = require("./routes/Auth");
 const profileRouter = require("./routes/profile");  
 const userRouter = require("./routes/user");
 const requestRouter=require("./routes/request");
+const cors=require("cors");
+
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true, // Allow cookies to be sent with requests
+}
+))
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",userRouter);
 app.use("/",requestRouter)
-
-
-
-
 
 
 connectDB().then(()=>{

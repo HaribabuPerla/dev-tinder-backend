@@ -21,7 +21,7 @@ const encryptPasswordHandler=(password)=>{
 }
 
 const validateProfileEdit = (profileData) => {
-const allowedEditFIelds=["firstName","lastName","age","photourl","about","skills"]
+const allowedEditFIelds=["firstName","lastName","gender","age","photoUrl","about","skills"]
 const isAllowd=Object.keys(profileData).every((key)=>allowedEditFIelds.includes(key))
 return isAllowd;
 }
