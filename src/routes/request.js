@@ -15,12 +15,20 @@ requestRouter.post("/request/:status/:userId",userAuth,async(req,res)=>{
 
     // Status checker
     if(!acceptedStatus.includes(status)){
-       return res.send({message:"Invalid status provided"});
+      return res.status(400).json({
+        status:400,
+        message:"Invalid status provided",
+        data:null
+       })
     }
     // checking to user is there or not
     const connectionSendUser= await User.findById(toUserId)
    if(!connectionSendUser){
-    res.send({message:"User not found"})
+        return res.status(400).json({
+        status:400,
+        message:"Connection user not found",
+        data:null
+       })
    }
 
    const existingRequest= await ConnectionRequest.find({
@@ -31,7 +39,12 @@ requestRouter.post("/request/:status/:userId",userAuth,async(req,res)=>{
    console.log(existingRequest, existingRequest?.length> 0,existingRequest[0]?.status,status, existingRequest[0]?.status === status);
    const statusCheck=existingRequest?.length>0 && existingRequest?.filter((el)=>el.status==status).length
    if(existingRequest?.length> 0 && statusCheck){
-    return res.send({message:`${status}  request already sent`});
+ 
+     return res.status(400).json({
+        status:400,
+        message:`${status}  request already sent`,
+        data:null
+       })
    }
  
     const data=new ConnectionRequest({
@@ -41,12 +54,20 @@ requestRouter.post("/request/:status/:userId",userAuth,async(req,res)=>{
     })
 
     await data.save()
-
-    res.send(`${req.user.firstName} send ${status} connection request to ${connectionSendUser.firstName}`);
+    res.status(200).json({
+        status:200,
+        message:`${req.user.firstName} send ${status} connection request to ${connectionSendUser.firstName}`,
+        data:null
+       })
 
     }catch(err){
         console.error("Error processing request:", err);
-        return res.status(500).send(err.message || "Internal Server Error");
+        return res.status(500).json({
+            status:500,
+            message:res?.message || "Something went wrong"
+
+        })
+        
     }
 
 
@@ -61,7 +82,6 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=
     const requestId=req.params.requestId;
     const status = req.params.status;
     const toUserId=loggedInUser._id;
-    console.log("Request ID:", requestId, "Status:", status, "To User ID:", toUserId);
     
     const acceptedStatus=["accepted","rejected"];
 
@@ -84,7 +104,7 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=
         connectionRequest = connectionRequest[0];
         connectionRequest.status = status;
         const data = await connectionRequest.save();
-        res.json({message:`${loggedInUser.firstName} has ${status} the connection request`, data});
+        res.json({status : 200 ,message:`${loggedInUser.firstName} has ${status} the connection request`, data});
 
     }else{
         res.status(400).send("Multiple connection requests found, please check the request ID");

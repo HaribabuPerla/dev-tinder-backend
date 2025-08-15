@@ -106,7 +106,7 @@ userRouter.get("/user/request/interested/recived",userAuth,async(req,res)=>{
         const pendingActions= await ConnectionRequest.find({
             toUserId: loggedInUser._id,
             status: "interested"
-        }).populate("fromUserId","firstName lastName -_id")
+        }).populate("fromUserId","firstName lastName about skills photoUrl")
 
         res.json({
             status: 200,
@@ -133,7 +133,7 @@ userRouter.get("/user/request/accepted/connections",userAuth,async(req,res)=>{
      const acceptedConnections=await ConnectionRequest.find({
         toUserId:loggedInUser._id,
         status:"accepted",
-     }).populate("fromUserId","firstName lastName -_id")
+     }).populate("fromUserId","firstName lastName about skills photoUrl")
 
      res.json({
         status:200,

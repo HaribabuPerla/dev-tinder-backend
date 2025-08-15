@@ -11,6 +11,7 @@ profileRouter.get("/profile/view",userAuth,async(req,res)=>{
      try{
            const userData=req.user;
            const responseUser={
+                  id:user._id,
                     firstName: userData.firstName,
                     lastName: userData.lastName,
                     about: userData.about,

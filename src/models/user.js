@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
     emailId:{
         type:String,
         required:true,
-        unique:[true,"Email already exists"],
+        unique:true,
         lowercase:true,
         trim:true,
         validate:(value) => {

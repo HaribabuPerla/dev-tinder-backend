@@ -9,7 +9,7 @@ authRouter.post("/signup",async(req,res)=>{
   const userObj=req.body
  try{
     // validate the user object
-    validateUserObject(userObj);
+    validateUserObject(userObj,res);
 
 // Encryption of password
     const encryptPwd = await encryptPasswordHandler(userObj.password)
@@ -21,16 +21,27 @@ authRouter.post("/signup",async(req,res)=>{
      password: encryptPwd,
    }
         const user=  new User(userData);
-   console.log("User object created:", user);
      await user.save();
-     console.log("user saved successfully",user)
-     res.send("User saved successfully");
+     res.status(200).json({
+        status:200,
+        message:"User saved successfully",
+     });
    
   
     }
    catch(err){
-       console.error("Error saving user:", err);
-       res.status(400).send(err.message);
+    if (err.code == 11000) {
+    return res.status(400).json({
+      status:400,
+      message: "Email is already registered",
+    });
+  } else{
+     return res.status(500).json({
+      status:400,
+      message: err.message || "Something went wrong"
+    });
+
+  }
    }
 
 })
@@ -41,7 +52,10 @@ authRouter.post("/login",async(req,res)=>{
         const {emailId, password} = req.body;
         // Check if the request body is defined and contains emailId and password
         if(!(req.body && Object.keys(req.body)?.length > 0 && emailId && password)){
-            return res.status(400).send("Please provide valid inputs");
+            return res.status(400).json({
+                status:400,
+                message:"Please provide valid inputs"
+            })
         }
       
        const user = await User.findOne({emailId:emailId})
@@ -64,7 +78,8 @@ authRouter.post("/login",async(req,res)=>{
             // send token to the user using cookies
              res.cookie("token",token)
 const responseUser={
-    firstName: user.firstName,
+    id:user._id,
+        firstName: user.firstName,
     lastName: user.lastName,
     about: user.about,
     skills: user.skills,
