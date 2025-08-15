@@ -14,7 +14,7 @@ const port=7777;
 
 app.use(express.json()); // Middleware to parse JSON bodies
 app.use(cookieParser()); // Middleware to parse cookies
-const authRouter = require("./routes/Auth");
+const authRouter =require("./routes/auth")
 const profileRouter = require("./routes/profile");  
 const userRouter = require("./routes/user");
 const requestRouter=require("./routes/request");
