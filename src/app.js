@@ -19,12 +19,21 @@ const profileRouter = require("./routes/profile");
 const userRouter = require("./routes/user");
 const requestRouter=require("./routes/request");
 const cors=require("cors");
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://dev-tinder-frontend-eight.vercel.app"
+];
 
 app.use(cors({
-    origin:"http://localhost:5173",
-    credentials:true, // Allow cookies to be sent with requests
-}
-))
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
+}));
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
@@ -42,3 +51,4 @@ connectDB().then(()=>{
     console.error("Database connection failed", err); 
 }) 
 
+// https://dev-tinder-backend-vbie.onrender.com
